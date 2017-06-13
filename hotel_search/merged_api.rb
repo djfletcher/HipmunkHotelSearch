@@ -4,9 +4,8 @@ require 'json'
 
 set :port, 8000
 
-get '/' do
-  all = Aggregator.get
-  JSON.pretty_generate(all)
+get '/hotels/search' do
+  Aggregator.get
 end
 
 
@@ -26,10 +25,11 @@ class Aggregator
       raw_response = RestClient.get "http://localhost:9000/scrapers/#{api}"
       parsed_response = JSON.parse(raw_response)
 
-      all << parsed_response
+      all += parsed_response['results']
     end
 
-    all
+    results = { 'results' => all }
+    JSON.generate(results)
   end
 
 end
