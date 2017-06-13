@@ -7,7 +7,7 @@
 3. Return the aggregated list, now sorted by ecstasy, through the aggregated API endpoint.
 
 # Problems / things to consider:
-    + API collisions i.e. different API's may return different information on same hotels.
++ API collisions i.e. different API's may return different information on same hotels.
 
 
 
