@@ -1,3 +1,19 @@
+# Methodology
+
+1. Query each API and assemble dictionary where keys are API names that point to list of results for that API.
+2. Until all lists are empty, repeat this process:
+    + Each list is already sorted by ecstasy, so index into first item in each list and find the item with the highest ecstasy.
+    + Unshift that element off of the list and push it onto new aggregated list.
+3. Return the aggregated list, now sorted by ecstasy, through the aggregated API endpoint.
+
+# Problems / things to consider:
+    + API collisions i.e. different API's may return different information on same hotels.
+
+
+
+
+
+
 # Building a Hotel Search API
 
 When a user runs a hotel search on Hipmunk we search many partner sites simultaneously to ensure we give them the best options. In this problem, you'll build an API that queries each of our different partners and merges their results together.
