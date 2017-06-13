@@ -5,11 +5,12 @@ require 'json'
 set :port, 8000
 
 get '/hotels/search' do
-  Aggregator.get
+  Aggregator.aggregate
 end
 
 
 class Aggregator
+  
   APIS = [
     'expedia',
     'orbitz',
@@ -18,18 +19,26 @@ class Aggregator
     'hilton'
   ]
 
-  def self.get
+  def self.aggregate
     all = []
 
     APIS.each do |api|
-      raw_response = RestClient.get "http://localhost:9000/scrapers/#{api}"
-      parsed_response = JSON.parse(raw_response)
-
-      all += parsed_response['results']
+      all += Aggregator.get(api)
     end
 
-    results = { 'results' => all }
+    results = { 'results' => Aggregator.sort(all) }
     JSON.generate(results)
+  end
+
+  def self.get(api)
+    raw_response = RestClient.get "http://localhost:9000/scrapers/#{api}"
+    JSON.parse(raw_response)['results']
+  end
+
+  def self.sort(results)
+    results.sort do |res1, res2|
+      res2['ecstasy'] <=> res1['ecstasy']
+    end
   end
 
 end
