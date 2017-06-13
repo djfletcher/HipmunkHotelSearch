@@ -1,5 +1,6 @@
 from tornado import gen
-import simplejson as json
+try: import simplejson as json
+except ImportError: import json
 import os
 from random import randint
 
@@ -31,4 +32,3 @@ class Scraper(object):
             data['price'] = randint(50, 300)
             data['ecstasy'] = randint(1, 1000)
             self.results.append(data)
-
