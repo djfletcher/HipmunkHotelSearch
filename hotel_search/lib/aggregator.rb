@@ -12,14 +12,17 @@ class Aggregator
   ]
 
   def self.aggregate
-    async_responses = Queue.new
+    async_responses = []
 
     APIS.each do |api|
-      Thread.new { async_responses.enq(Aggregator.get(api)) }
+      # Create a separate thread for each api call so they may occur concurrently
+      Thread.new { async_responses.concat(Aggregator.get(api)) }
     end
 
-    merged = Aggregator.merge(async_responses)
-    sorted = { 'results' => Aggregator.sort(merged) }
+    # Wait for all api calls to return before sorting results
+    sleep(0.01) until async_responses.length == 45
+
+    sorted = { 'results' => Aggregator.sort(async_responses) }
     JSON.generate(sorted)
   end
 
@@ -32,13 +35,6 @@ class Aggregator
     results.sort do |res1, res2|
       res2['ecstasy'] <=> res1['ecstasy']
     end
-  end
-
-  def self.merge(async_responses)
-    sleep(0.01) until async_responses.length == APIS.length
-    merged = []
-    merged += async_responses.deq until async_responses.empty?
-    merged
   end
 
 end
