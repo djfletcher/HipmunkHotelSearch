@@ -1,17 +1,6 @@
-# Methodology
+# Solution
 
-1. Query each API and assemble dictionary where keys are API names that point to list of results for that API.
-2. Until all lists are empty, repeat this process:
-    + Each list is already sorted by ecstasy, so index into first item in each list and find the item with the highest ecstasy.
-    + Unshift that element off of the list and push it onto new aggregated list.
-3. Return the aggregated list, now sorted by ecstasy, through the aggregated API endpoint.
-
-# Problems / things to consider:
-+ API collisions i.e. different API's may return different information on same hotels.
-
-
-
-
+This solution is very straightforward. An `Aggregator` class creates a separate thread for each Scraper API call and then concatenates the response onto an array. Once all API's have responded the `Aggregator` sorts them by 'ecstasy' and returns the merged results as a single JSON object. It does this in just over 2 seconds.
 
 
 # Building a Hotel Search API
