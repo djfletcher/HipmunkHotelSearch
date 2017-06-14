@@ -1,7 +1,19 @@
 # Hip Solution
 This is my solution, implemented in Ruby, to the [Building a Hotel Search API](https://github.com/djfletcher/HotelSearch/tree/master/hotel_search) problem.
 
-This solution is very straightforward. A [single API endpoint](,.hotel_search/merged_api.rbh) is configured to respond to `get` requests on port 8000. When it receives a request, an [`Aggregator`](./hotel_search/aggregator.rb) class makes a call to five separate Scraper API's and aggregates the results into a single JSON response. It achieves this in just over 2 seconds (the Scraper API's 'sleep' for 2 seconds before responding to simulate real world delay) by creating a separate [thread](https://ruby-doc.org/core-2.2.0/Thread.html) for each Scraper API call, so that all Scraper HTTP request/response cycles may occur concurrently. As the asynchronous responses come in, the `Aggregator` concatenates the response onto an `async_responses` array. Once all API's have responded the `Aggregator` sorts the results by 'ecstasy' and returns the merged results as a single JSON object.
+This solution is very straightforward. A [single API endpoint](,.hotel_search/merged_api.rbh) is configured to respond to `get` requests on port 8000. When it receives a request, an [`Aggregator`](./hotel_search/aggregator.rb) class makes a call to five separate Scraper API's and aggregates the results into a single JSON response. It achieves this in just over 2 seconds (the Scraper API's 'sleep' for 2 seconds before responding to simulate real world delay) by creating a separate [thread](https://ruby-doc.org/core-2.2.0/Thread.html) for each Scraper API call, so that all Scraper HTTP request/response cycles may occur concurrently.
+
+```ruby
+# hotel_search/aggregator.rb
+async_responses = []
+
+APIS.each do |api|
+  # Create a separate thread for each api call so they may occur concurrently
+  Thread.new { async_responses.concat(Aggregator.get(api)) }
+end
+```
+
+As the asynchronous responses come in, the `Aggregator` concatenates the response onto an `async_responses` array. Once all API's have responded the `Aggregator` sorts the results by 'ecstasy' and returns the merged results as a single JSON object. Exception handling is also included so that in the event that the API's do not respond within 10 seconds, the program terminates early and returns JSON indicating a timeout error.
 
 # Setup
 

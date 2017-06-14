@@ -1,5 +1,6 @@
 require 'rest-client'
 require 'json'
+require 'timeout'
 
 class Aggregator
 
@@ -19,8 +20,16 @@ class Aggregator
       Thread.new { async_responses.concat(Aggregator.get(api)) }
     end
 
-    # Wait for all api calls to return before sorting results
-    sleep(0.01) until async_responses.length == 45
+    # API's should take ~2 seconds to respond, if 10 seconds elapse then something
+    # went wrong, and the program should interrupt and return early (or else it would sleep forever)
+    begin
+      Timeout.timeout(10) do
+        # Wait for all api calls to return before sorting results
+        sleep(0.01) until async_responses.length == 45
+      end
+    rescue Timeout::Error
+      return JSON.generate("results" => [], "error" => "Timeout Error")
+    end
 
     sorted = { 'results' => Aggregator.sort(async_responses) }
     JSON.generate(sorted)
