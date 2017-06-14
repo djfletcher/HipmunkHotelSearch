@@ -1,15 +1,10 @@
-# Solution
-
-This solution is very straightforward. An `Aggregator` class creates a separate thread for each Scraper API call and then concatenates the response onto an array. Once all API's have responded the `Aggregator` sorts them by 'ecstasy' and returns the merged results as a single JSON object. It does this in just over 2 seconds.
-
-
 # Building a Hotel Search API
 
-When a user runs a hotel search on Hipmunk we search many partner sites simultaneously to ensure we give them the best options. In this problem, you'll build an API that queries each of our different partners and merges their results together.
+When a user runs a hotel search we search many partner sites simultaneously to ensure we give them the best options. In this problem, you'll build an API that queries each of our different partners and merges their results together.
 
 # Background
 
-Hipmunk has a scraper farm that we use to search our partner sites. The name scraper is a legacy holdover from when we actually scraped them. Nowadays, we query their APIs :)
+We have a scraper farm that we use to search our partner sites. The name scraper is a legacy holdover from when we actually scraped them. Nowadays, we query their APIs :)
 
 For this problem, the scraper farm will be emulated by a simple HTTP server.
 
