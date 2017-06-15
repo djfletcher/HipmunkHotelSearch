@@ -5,15 +5,39 @@ This solution is very straightforward. A [single API endpoint](,.hotel_search/me
 
 ```ruby
 # hotel_search/aggregator.rb
-async_responses = []
+async_responses = {}
 
 APIS.each do |api|
   # Create a separate thread for each api call so they may occur concurrently
-  Thread.new { async_responses.concat(Aggregator.get(api)) }
+  Thread.new { async_responses[api] = Aggregator.get(api) }
 end
 ```
 
-As the asynchronous responses come in, the `Aggregator` concatenates the response onto an `async_responses` array. Once all API's have responded the `Aggregator` sorts the results by 'ecstasy' and returns the merged results as a single JSON object. Exception handling is also included so that in the event that the API's do not respond within 10 seconds, the program terminates early and returns JSON indicating a timeout error.
+As the asynchronous responses come in, the `Aggregator` stores them in an `async_responses` hash with API names as keys. Once all API's have responded, the `Aggregator` implements [mergesort](https://en.wikipedia.org/wiki/Merge_sort) to merge the sorted arrays. The merge is achieved by iterating over the first element of each array, extracting the one from the group with the highest 'ecstasy', and pushing it onto a merged array.
+
+```ruby
+# hotel_search/aggregator.rb
+def self.merge(results)
+  merged = []
+  # Until all hotel arrays are empty, extract the hotel with the highest ecstasy
+  while results.any? { |_api, hotels| !hotels.empty? }
+    max = nil
+    results.each do |api, hotels|
+      # Save a reference to the api whose leading element has the highest ecstasy
+      next if hotels.empty?
+      max = api if max.nil? || more_ecstatic_head(hotels, results[max])
+    end
+    # Shift off the highest ecstasy hotel and push it onto the merged array
+    merged << results[max].shift
+  end
+
+  merged
+end
+```
+
+This solution does not optimize lookup/extraction of the hotel with the highest ecstasy because there are only 5 elements that need to be checked each time. As the number of arrays, k, being merged grows very large (i.e. many more API's were added), linear iteration over the heads of each would become a performance drag. If many more API's were added then lookup/extraction of the max could be optimized by keeping the first element of each array in a priority queue. A max heap could be used to implement this priority queue, maintaining O(n logk) insertion/extraction of the most ecstatic hotel amongst the unmerged results.
+
+Exception handling is also included so that in the event that the API's do not respond within 10 seconds, the program terminates early and returns JSON indicating a timeout error.
 
 # Setup
 
